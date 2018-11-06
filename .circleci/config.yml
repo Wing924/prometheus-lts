@@ -3,7 +3,19 @@ jobs:
   build:
     docker:
     - image: circleci/golang:1.11
+    - image: spotify/kafka
+      environment:
+        ADVERTISED_HOST: '0.0.0.0'
     steps:
     - checkout
+    - restore_cache:
+        keys:
+        - go_mod-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
     - run: go get -v -t -d ./...
-    - run: go test -v ./...
+    - save_cache:
+        key: go_mod-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+        paths:
+        - /go/pkg/mod
+    - run: dockerize -timeout 60s -wait tcp://localhost:9092
+    - run: go test ./... -race -coverprofile=coverage.txt -covermode=atomic
+    - run: bash <(curl -s https://codecov.io/bash)

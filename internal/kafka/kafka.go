@@ -8,12 +8,12 @@ import (
 
 type (
 	Producer struct {
-		Topic    string
-		Producer sarama.AsyncProducer
+		sarama.AsyncProducer
+		Topic string
 	}
 )
 
-func New(brokers []string, topic string) *Producer {
+func NewProducer(brokers []string, topic string) *Producer {
 	config := sarama.NewConfig()
 	config.Producer.Return.Errors = true
 	config.Producer.Return.Successes = true
@@ -25,8 +25,8 @@ func New(brokers []string, topic string) *Producer {
 	}
 
 	return &Producer{
-		Topic:    topic,
-		Producer: producer,
+		Topic:         topic,
+		AsyncProducer: producer,
 	}
 }
 
@@ -34,7 +34,7 @@ func (c *Producer) ProduceSamples(samples model.Samples) {
 	for _, sample := range samples {
 		fingerprint := EncodeFingerprint(sample.Metric.FastFingerprint())
 		encodedSample := EncodeSample(sample)
-		c.Producer.Input() <- &sarama.ProducerMessage{
+		c.Input() <- &sarama.ProducerMessage{
 			Topic: c.Topic,
 			Key:   sarama.ByteEncoder(fingerprint),
 			Value: sarama.ByteEncoder(encodedSample),

@@ -29,9 +29,9 @@ func New(k kafka.Producer, r prometheus.Registerer) *Writer {
 	go func() {
 		for {
 			select {
-			case <-w.Kafka.Producer.Successes():
+			case <-w.Kafka.Successes():
 				w.metrics.sentSamples.Add(1)
-			case err := <-w.Kafka.Producer.Errors():
+			case err := <-w.Kafka.Errors():
 				log.Printf("e: %v", err.Err)
 				w.metrics.failedSamples.Add(1)
 			}

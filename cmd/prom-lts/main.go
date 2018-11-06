@@ -7,8 +7,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/Wing924/prometheus-lts/internal/writer"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
@@ -28,7 +26,7 @@ func main() {
 		runtime.SetMutexProfileFraction(20)
 	}
 
-	writer.RegisterHandler()
+	//writer.RegisterHandler()
 
 	http.Handle("/metrics", promhttp.Handler())
 	log.Fatal("e: ", http.ListenAndServe(*addr, nil))
